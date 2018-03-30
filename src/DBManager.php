@@ -42,16 +42,26 @@
 				exit();
 			}
 			
-			$insertQuery = 'INSERT INTO users (name, email, password) VALUES (:name, :email, :password)';
-			$stmt = $this->db->prepare($insertQuery);
-			$stmt->bindParam(':name', $name);
-			$stmt->bindParam(':email', $email);
-			$pwd = password_hash($password, PASSWORD_DEFAULT);
-			$stmt->bindParam(':password', $pwd);
-			if($stmt->execute()) {
-				return true;			
-			} else {
-				return false;	
+			try {
+				
+				$insertQuery = 'INSERT INTO users (name, email, password) VALUES (:name, :email, :password)';
+				$stmt = $this->db->prepare($insertQuery);
+				$stmt->bindParam(':name', $name);
+				$stmt->bindParam(':email', $email);
+				$pwd = password_hash($password, PASSWORD_DEFAULT);
+				$stmt->bindParam(':password', $pwd);
+				$stmt->execute();
+				
+				if($stmt->rowCount() > 0) {
+					echo json_encode(['code' => 200, 'message' => 'Registered']);		
+				} else {
+					echo json_encode(['code' => 500, 'message' => 'Couldn\'t Register']);	
+				}
+				
+			} catch (Exception $e) {
+				
+				echo json_encode(['code' => 500, 'message' => 'Couldn\'t Register - email address already registered']);
+				
 			}
 		
 		}
@@ -78,26 +88,35 @@
 			
 			// Not sure how to just fetch one row =/
 			while($row = $stmt->fetch(1)) {
+				
 				$data[] = [
 					'id' => $row['id'],
 					'name' => $row['name'],
 					'email' => $row['email'],
 					'password' => $row['password']
 				];
+				
 			}
 
 			$user = $data[0];
 			
 			if(!$user) {
-				return false; // user not found by email
+				
+				echo json_encode(['code' => 401, 'message' => 'Couldn\'t log you in']); // user not found by email
+			
 			} else {
+				
 				if($user['email'] == password_verify($password, $user['password'])) {
+				
 					$date = new DateTime();
 					$iat = date_timestamp_get($date);
 					$token = new Token($user['id'], $secret, $iat);
-					return $token; // everything good
+					echo json_encode(['code' => 200, 'message' => 'Logged in', 'token' => $token->getTokenString()]); // everything good
+				
 				} else {
-					return false; // wrong password
+				
+					echo json_encode(['code' => 401, 'message' => 'Couldn\'t log you in']); // wrong password
+	
 				}
 			}			
 			
@@ -123,9 +142,19 @@
 			
 			if($stmt->execute()) {
 				$bills = $stmt->fetchAll();
-				return $bills;
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'bills' => $bills,
+					'token' => $refreshed_token->getTokenString()
+				]);
 			} else {
-				return false;
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found',
+					'bills' => '',
+					'token' => $refreshed_token->getTokenString()
+				]);	
 			}
 			
 		}
@@ -137,7 +166,7 @@
 		 *
 		 * @return array[] $billers Biller objects | boolean false if db error
 		 */
-		function getBillers($id) {
+		function getBillers($id, $refreshed_token) {
 			
 			$query = "
 			SELECT billers.id, billers.name, billers.category
@@ -147,9 +176,19 @@
 			
 			if($stmt->execute()) {
 				$billers = $stmt->fetchAll();
-				return $billers;
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'billers' => $billers,
+					'token' => $refreshed_token->getTokenString()
+				]);	
 			} else {
-				return false;
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found',
+					'billers' => '',
+					'token' => $refreshed_token->getTokenString()
+				]);	
 			}
 			
 		}
@@ -161,7 +200,7 @@
 		 *
 		 * @return boolean true if created | boolean false if db error
 		 */
-		function createBill($id) {
+		function createBill($id, $refreshed_token) {
 			
 			// Retrieve POST variables
 			$user_id = $id;
@@ -179,9 +218,17 @@
 			$stmt->bindParam(':status', $status);
 				
 			if($stmt->execute()) {	
-				return true;
+				echo json_encode([
+					'code' => 201, 
+					'message' => 'Bill created',
+					'token' => $refreshed_token->getTokenString()
+				]);
 			} else {
-				return false;
+				echo json_encode([
+					'code' => 424, 
+					'message' => 'Bill not created',
+					'token' => $refreshed_token->getTokenString()
+				]);
 			}
 			
 		}
@@ -193,7 +240,7 @@
 		 *
 		 * @return JSON 422 if bad entity | boolean true if created | boolean false if db error
 		 */
-		function createBiller($id) {
+		function createBiller($id, $refreshed_token) {
 			
 			// Retrieve POST variables
 			$name = $_REQUEST['name'];
@@ -215,9 +262,13 @@
 			$stmt->bindParam(':category', $category);
 				
 			if($stmt->execute()) {	
-				return true;
+			
+				echo json_encode(['code' => 201, 'message' => 'Biller created', "token" => $refreshed_token->getTokenString()]);			
+
 			} else {
-				return false;
+				
+				echo json_encode(['code' => 500, 'message' => 'Biller not created', "token" => $refreshed_token->getTokenString()]);		
+
 			}
 			
 		}
@@ -230,7 +281,7 @@
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
-		function updateBill($id) {
+		function updateBill($id, $refreshed_token) {
 		
 			// Get bill id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
@@ -258,10 +309,22 @@
 			$stmt->bindParam(':due', $due);
 			$stmt->bindParam(':status', $status);
 
-			if($stmt->execute()) {			
-				return true;
+			if($stmt->execute()) {		
+			
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'token' => $refreshed_token->getTokenString()
+				]);
+				
 			} else {
-				return false;
+				
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found PUT',
+					'token' => $refreshed_token->getTokenString()
+				]);
+				
 			}
 		
 		}
@@ -273,7 +336,7 @@
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
-		function updateBillStatus($id) { 
+		function updateBillStatus($id, $refreshed_token) { 
 		
 			// Get bill id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
@@ -290,11 +353,23 @@
 			// Executes whether bill id is valid or not
 			// How to send back appropriate json response if bill id invalid?
 			if($stmt->execute()) {		
-				return true;
+				
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'token' => $refreshed_token->getTokenString()
+				]);
+				
 			} else {
-				return false;
+				
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found PATCH',
+					'token' => $refreshed_token->getTokenString()
+				]);
+				
 			}
-		
+			
 		}
 		
 		/**
@@ -305,7 +380,7 @@
 		 *
 		 * @return true if updated | boolean false if db error
 		 */
-		function deleteBill($id) {
+		function deleteBill($id, $refreshed_token) {
 		
 			$user_id = $id;
 				
@@ -319,9 +394,22 @@
 			// Executes whether bill id is valid or not
 			// How to send back appropriate json response if bill id invalid?			
 			if($stmt->execute(array(':bill_id' => $bill_id, ':user_id' => $user_id))) {
-				return true;
+				
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'token' => $refreshed_token->getTokenString()
+				]);
+					
 			} else {
-				return false;
+				
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found',
+					'bills' => '',
+					'token' => $refreshed_token->getTokenString()
+				]);	
+				
 			}
 		
 		}

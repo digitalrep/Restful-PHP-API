@@ -15,23 +15,7 @@
 				
 				// Retrieve the bills
 				$dbmanager = new DBManager();
-				$bills = $dbmanager->getBills($id);
-				
-				if(!$bills == 0) {
-					echo json_encode([
-						'code' => 200, 
-						'message' => 'OK',
-						'bills' => $bills,
-						'token' => $refreshed_token->getTokenString()
-					]);				
-				} else {
-					echo json_encode([
-						'code' => 404, 
-						'message' => 'Not found',
-						'bills' => '',
-						'token' => $refreshed_token->getTokenString()
-					]);					
-				}
+				$dbmanager->getBills($id, $refreshed_token);
 				
 			} else {
 			
@@ -54,19 +38,7 @@
 					
 				// Create new bill
 				$dbmanager = new DBManager();
-				$insert = $dbmanager->createBill($id);
-					
-				if($insert) {
-					echo json_encode([
-						'code' => 201, 
-						'message' => 'Bill created',
-						'token' => $refreshed_token->getTokenString()]);			
-				} else {
-					echo json_encode([
-						'code' => 424, 
-						'message' => 'Bill not created',
-						'token' => $refreshed_token->getTokenString()]);		
-				}		
+				$dbmanager->createBill($id, $refreshed_token);	
 				
 			} else {
 			
@@ -89,19 +61,7 @@
 				
 				// Patch bill
 				$dbmanager = new DBManager();
-				$patch = $dbmanager->updateBill($id);	
-				
-				if($patch) {
-					echo json_encode([
-						'code' => 200, 
-						'message' => 'OK',
-						'token' => $refreshed_token->getTokenString()]);			
-				} else {
-					echo json_encode([
-						'code' => 404, 
-						'message' => 'Not found',
-						'token' => $refreshed_token->getTokenString()]);		
-				}				
+				$dbmanager->updateBill($id, $refreshed_token);				
 				
 			} else {
 				
@@ -123,19 +83,7 @@
 				
 				// Patch bill
 				$dbmanager = new DBManager();
-				$patch = $dbmanager->updateBillStatus($id);				
-				
-				if($patch) {
-					echo json_encode([
-						'code' => 200, 
-						'message' => 'OK',
-						'token' => $refreshed_token->getTokenString()]);			
-				} else {
-					echo json_encode([
-						'code' => 404, 
-						'message' => 'Not found',
-						'token' => $refreshed_token->getTokenString()]);		
-				}				
+				$dbmanager->updateBillStatus($id, $refreshed_token);							
 				
 			} else {
 				
@@ -157,25 +105,7 @@
 
 				// Delete bill
 				$dbmanager = new DBManager();
-				$delete = $dbmanager->deleteBill($id);
-				
-				if($delete) {			
-					
-					echo json_encode([
-						'code' => 200, 
-						'message' => 'OK',
-						'token' => $refreshed_token->getTokenString()
-					]);		
-					
-				} else {
-					echo json_encode([
-						'code' => 404, 
-						'message' => 'Not found',
-						'bills' => '',
-						'token' => $refreshed_token->getTokenString()
-					]);	
-				}		
-				
+				$dbmanager->deleteBill($id, $refreshed_token);	
 				
 			} else {
 				

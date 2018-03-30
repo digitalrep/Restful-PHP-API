@@ -12,20 +12,19 @@
 	include '../src/database/create_tables.php';
 	
 	// Models
-	include '../src/models/token.php';
+	include '../src/models/Token.php';
 	
 	// Helpers
 	include '../src/TokenHelper.php';
 	include '../src/DBManager.php';
 	
 	// Unprotected 
-	include '../src/user/register.php';
-	include '../src/user/login.php';
+	include '../src/user/Register.php';
+	include '../src/user/Login.php';
 	
 	// Protected
-	include '../src/admin.php'; 
-	include '../src/bill.php';
-	include '../src/biller.php';
+	include '../src/Bill.php';
+	include '../src/Biller.php';
 	
 	// Parse URI
 	//$action = preg_replace("/[^A-Za-z0-9 ]/", '', $_SERVER['REQUEST_URI']);

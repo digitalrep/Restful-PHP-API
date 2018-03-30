@@ -15,23 +15,7 @@
 				
 				// Get billers
 				$dbmanager = new DBManager();
-				$billers = $dbmanager->getBillers($id);					
-				
-				if($billers) {
-					echo json_encode([
-						'code' => 200, 
-						'message' => 'OK',
-						'billers' => $billers,
-						'token' => $refreshed_token->getTokenString()
-					]);				
-				} else {
-					echo json_encode([
-						'code' => 404, 
-						'message' => 'Not found',
-						'billers' => '',
-						'token' => $refreshed_token->getTokenString()
-					]);					
-				}				
+				$dbmanager->getBillers($id, $refreshed_token);								
 				
 			} else {
 			
@@ -54,13 +38,7 @@
 				
 				// Create biller
 				$dbmanager = new DBManager();
-				$create = $dbmanager->createBiller($id);					
-				
-				if($create) {
-					echo json_encode(['code' => 201, 'message' => 'Biller created', "token" => $refreshed_token->getTokenString()]);			
-				} else {
-					echo json_encode(['code' => 500, 'message' => 'Biller not created', "token" => $refreshed_token->getTokenString()]);		
-				}
+				$dbmanager->createBiller($id, $refreshed_token);					
 				
 			} else {
 			
