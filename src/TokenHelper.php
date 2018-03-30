@@ -1,14 +1,28 @@
 <?php
 
+	/**
+	 * Class that helps to verify tokens
+	 */
 	class TokenHelper {
 		
+		/**
+		 * @var string
+		 */
 		private $secret;
 		
+		/**
+		 * @param string $secret Used for creating tokens 
+		 */
 		public function __construct($secret)
 		{
 			$this->secret = $secret;
 		}
 	
+		/**
+		 * Reads the token from the Authorization header then attempts to verify it
+		 *
+		 * @return string $token if verified | integer 0 if expired | integer 0 if not verified
+		 */
 		function getUserId() {
 			
 			// Get raw token string

@@ -2,6 +2,9 @@
 
 	class DBManager {
 		
+		/**
+		 * @var PDO 
+		 */
 		private $db;
 
 		public function __construct() {
@@ -11,6 +14,15 @@
 		
 		}
 		
+		/**
+		 * Register new user 
+		 *
+		 * @params string $_REQUEST['name'] 
+		 * @params string $_REQUEST['email'] 
+		 * @params string $_REQUEST['password'] 
+		 *
+		 * @return JSON code 422 if bad entity | boolean true if registered | boolean false if db error
+		 */
 		function register() {
 		
 			$name = $_REQUEST['name'];
@@ -44,6 +56,14 @@
 		
 		}
 		
+		/**
+		 * Login user 
+		 *
+		 * @params string $_REQUEST['email'] 
+		 * @params string $_REQUEST['password'] 
+		 *
+		 * @return string $token if logged in | boolean false if not found | boolean false if bad password
+		 */
 		function login($secret) {
 
 			// Get POST variables
@@ -83,6 +103,13 @@
 			
 		}
 		
+		/**
+		 * Get bills for user
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return array[] $bills Bill objects | boolean false if db error
+		 */
 		function getBills($id) {
 			
 			$query = "
@@ -103,6 +130,13 @@
 			
 		}
 		
+		/**
+		 * Get billers
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return array[] $billers Biller objects | boolean false if db error
+		 */
 		function getBillers($id) {
 			
 			$query = "
@@ -120,6 +154,13 @@
 			
 		}
 		
+		/**
+		 * Create bill for user
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return boolean true if created | boolean false if db error
+		 */
 		function createBill($id) {
 			
 			// Retrieve POST variables
@@ -145,6 +186,13 @@
 			
 		}
 		
+		/**
+		 * Create biller
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return JSON 422 if bad entity | boolean true if created | boolean false if db error
+		 */
 		function createBiller($id) {
 			
 			// Retrieve POST variables
@@ -174,6 +222,14 @@
 			
 		}
 		
+		/**
+		 * Update bill for user
+		 *
+		 * @param integer $id user id
+		 * @param input stream php://input for PUT vars
+		 *
+		 * @return boolean true if updated | boolean false if db error
+		 */
 		function updateBill($id) {
 		
 			// Get bill id from URI
@@ -210,6 +266,13 @@
 		
 		}
 		
+		/**
+		 * Update bill for user
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return boolean true if updated | boolean false if db error
+		 */
 		function updateBillStatus($id) { 
 		
 			// Get bill id from URI
@@ -234,6 +297,14 @@
 		
 		}
 		
+		/**
+		 * Delete bill for user
+		 *
+		 * @param integer $id user id
+		 * @param $_SERVER['REQUEST_URI'] to get bill id
+		 *
+		 * @return true if updated | boolean false if db error
+		 */
 		function deleteBill($id) {
 		
 			$user_id = $id;
