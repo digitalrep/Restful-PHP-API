@@ -6,7 +6,9 @@
 		if($_SERVER['REQUEST_METHOD'] === 'POST') {
 			
 			// Make sure token is valid
-			$id = checkToken($secret);
+			$tokenHelper = new TokenHelper($secret);
+			$id = $tokenHelper->getUserId();
+			
 			if($id != 0) {
 				
 				$refreshed_token = new Token($id, $secret, null);				

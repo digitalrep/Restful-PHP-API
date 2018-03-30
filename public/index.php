@@ -3,6 +3,8 @@
 	/**
 	 * Very simple PHP REST API
 	 *
+	 * Author: digitalrep@live.com.au
+	 *
 	 */
 	 
 	 
@@ -17,7 +19,8 @@
 	include '../src/user/login.php';
 	
 	// Helpers
-	include '../src/token_helpers.php';
+	include '../src/tokenhelper.php';
+	include '../src/DBManager.php';
 	
 	// Protected
 	include '../src/admin.php'; 
