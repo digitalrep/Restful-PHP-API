@@ -17,9 +17,9 @@
 		/**
 		 * Register new user 
 		 *
-		 * @params string $_REQUEST['name'] 
-		 * @params string $_REQUEST['email'] 
-		 * @params string $_REQUEST['password'] 
+		 * @param string $_REQUEST['name'] 
+		 * @param string $_REQUEST['email'] 
+		 * @param string $_REQUEST['password'] 
 		 *
 		 * @return JSON code 422 if bad entity | boolean true if registered | boolean false if db error
 		 */
@@ -59,8 +59,8 @@
 		/**
 		 * Login user 
 		 *
-		 * @params string $_REQUEST['email'] 
-		 * @params string $_REQUEST['password'] 
+		 * @param string $_REQUEST['email'] 
+		 * @param string $_REQUEST['password'] 
 		 *
 		 * @return string $token if logged in | boolean false if not found | boolean false if bad password
 		 */
