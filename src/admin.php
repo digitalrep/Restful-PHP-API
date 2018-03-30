@@ -4,7 +4,10 @@
 		
 		if($_SERVER['REQUEST_METHOD'] === 'GET') {
 			
-			$id = checkToken($secret);
+			// Make sure token is valid
+			$tokenHelper = new TokenHelper($secret);
+			$id = $tokenHelper->getUserId();
+			
 			if($id != 0) {
 				
 				// Controller Operations

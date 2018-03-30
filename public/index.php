@@ -19,7 +19,7 @@
 	include '../src/user/login.php';
 	
 	// Helpers
-	include '../src/tokenhelper.php';
+	include '../src/TokenHelper.php';
 	include '../src/DBManager.php';
 	
 	// Protected

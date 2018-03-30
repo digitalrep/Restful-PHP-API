@@ -31,6 +31,23 @@
 			
 		}
 		
+		function getBillers($id) {
+			
+			$query = "
+			SELECT billers.id, billers.name, billers.category
+			FROM billers";
+			$stmt = $this->db->prepare($query);
+			if(!$stmt) { print_r($this->db->errorInfo()); }
+			
+			if($stmt->execute()) {
+				$billers = $stmt->fetchAll();
+				return $billers;
+			} else {
+				return false;
+			}
+			
+		}
+		
 		function createBill($id) {
 			
 			// Retrieve POST variables
@@ -47,6 +64,35 @@
 			$stmt->bindParam(':amount', $amount);
 			$stmt->bindParam(':due', $due);
 			$stmt->bindParam(':status', $status);
+				
+			if($stmt->execute()) {	
+				return true;
+			} else {
+				return false;
+			}
+			
+		}
+		
+		function createBiller($id) {
+			
+			// Retrieve POST variables
+			$name = $_REQUEST['name'];
+			$category = $_REQUEST['category'];
+				
+			// Check values
+			if(strlen($name) < 3) {
+				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
+				exit();
+			}
+			if(strlen($category) < 3) {
+				echo json_encode(['code' => 422, 'message' => 'Category too short']);	
+				exit();
+			}
+			
+			$query = "INSERT INTO billers (name, category) VALUES (:name, :category)";
+			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(':name', $name);
+			$stmt->bindParam(':category', $category);
 				
 			if($stmt->execute()) {	
 				return true;
