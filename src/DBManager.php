@@ -11,6 +11,78 @@
 		
 		}
 		
+		function register() {
+		
+			$name = $_REQUEST['name'];
+			$email = $_REQUEST['email'];
+			$password = $_REQUEST['password'];
+			
+			if(strlen($name) < 3) {
+				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
+				exit();
+			}
+			if(strlen($email) < 6) {
+				echo json_encode(['code' => 422, 'message' => 'Email too short']);	
+				exit();
+			}
+			if(strlen($password) < 6) {
+				echo json_encode(['code' => 422, 'message' => 'Password too short']);	
+				exit();
+			}
+			
+			$insertQuery = 'INSERT INTO users (name, email, password) VALUES (:name, :email, :password)';
+			$stmt = $this->db->prepare($insertQuery);
+			$stmt->bindParam(':name', $name);
+			$stmt->bindParam(':email', $email);
+			$pwd = password_hash($password, PASSWORD_DEFAULT);
+			$stmt->bindParam(':password', $pwd);
+			if($stmt->execute()) {
+				return true;			
+			} else {
+				return false;	
+			}
+		
+		}
+		
+		function login($secret) {
+
+			// Get POST variables
+			$email = $_REQUEST['email'];
+			$password = $_REQUEST['password'];
+			
+			// We use email (it's unique)
+			$stmt = $this->db->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+			$stmt->execute([':email' => $email]);		
+
+			$data = [];
+			
+			// Not sure how to just fetch one row =/
+			while($row = $stmt->fetch(1)) {
+				$data[] = [
+					'id' => $row['id'],
+					'name' => $row['name'],
+					'email' => $row['email'],
+					'password' => $row['password']
+				];
+			}
+
+			$user = $data[0];
+			
+			if(!$user) {
+				return false; // user not found by email
+			} else {
+				if($user['email'] == password_verify($password, $user['password'])) {
+					$date = new DateTime();
+					$iat = date_timestamp_get($date);
+					$token = new Token($user['id'], $secret, $iat);
+					return $token; // everything good
+				} else {
+					return false; // wrong password
+				}
+			}			
+			
+		}
+		
 		function getBills($id) {
 			
 			$query = "

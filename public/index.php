@@ -14,13 +14,13 @@
 	// Models
 	include '../src/models/token.php';
 	
-	// Unprotected 
-	include '../src/user/register.php';
-	include '../src/user/login.php';
-	
 	// Helpers
 	include '../src/TokenHelper.php';
 	include '../src/DBManager.php';
+	
+	// Unprotected 
+	include '../src/user/register.php';
+	include '../src/user/login.php';
 	
 	// Protected
 	include '../src/admin.php'; 
