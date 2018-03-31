@@ -9,7 +9,12 @@
 
 		public function __construct() {
 			
-			$this->db = new PDO("sqlite:../src/database/database.sqlite");
+			if($database == "MySQL") {
+				$db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');	
+			} else {
+				$this->db = new PDO("sqlite:../src/database/database.sqlite");
+			}
+			
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
 		}
@@ -129,10 +134,10 @@
 		 *
 		 * @return array[] $bills Bill objects | boolean false if db error
 		 */
-		function getBills($id) {
+		function getBills($id, $refreshed_token) {
 			
 			$query = "
-			SELECT bills.id, bills.user_id, billers.name, billers.category, bills.amount, bills.due, bills.status 
+			SELECT bills.id, bills.user_id, billers.name, billers.category_id, bills.amount, bills.due, bills.status 
 			FROM bills 
 			INNER JOIN billers 
 			ON bills.biller_id = billers.id WHERE bills.user_id = :user_id";
@@ -169,10 +174,13 @@
 		function getBillers($id, $refreshed_token) {
 			
 			$query = "
-			SELECT billers.id, billers.name, billers.category
-			FROM billers";
+			SELECT billers.id, billers.name, categories.category_name
+			FROM billers
+			INNER JOIN categories
+			ON billers.category_id = categories.id WHERE billers.user_id = :user_id";
 			$stmt = $this->db->prepare($query);
 			if(!$stmt) { print_r($this->db->errorInfo()); }
+			$stmt->bindParam(':user_id', $id);
 			
 			if($stmt->execute()) {
 				$billers = $stmt->fetchAll();
@@ -187,6 +195,42 @@
 					'code' => 404, 
 					'message' => 'Not found',
 					'billers' => '',
+					'token' => $refreshed_token->getTokenString()
+				]);	
+			}
+			
+		}
+		
+		/**
+		 * Get categories
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return array[] $categories Category objects | boolean false if db error
+		 */
+		function getCategories($id, $refreshed_token) {
+			
+			$query = "
+			SELECT categories.id, categories.category_name
+			FROM categories
+			WHERE user_id = :user_id";
+			$stmt = $this->db->prepare($query);
+			if(!$stmt) { print_r($this->db->errorInfo()); }
+			$stmt->bindParam(':user_id', $id);
+			
+			if($stmt->execute()) {
+				$categories = $stmt->fetchAll();
+				echo json_encode([
+					'code' => 200, 
+					'message' => 'OK',
+					'categories' => $categories,
+					'token' => $refreshed_token->getTokenString()
+				]);	
+			} else {
+				echo json_encode([
+					'code' => 404, 
+					'message' => 'Not found',
+					'categories' => '',
 					'token' => $refreshed_token->getTokenString()
 				]);	
 			}
@@ -244,30 +288,75 @@
 			
 			// Retrieve POST variables
 			$name = $_REQUEST['name'];
-			$category = $_REQUEST['category'];
+			$category_id = $_REQUEST['category_id'];
 				
 			// Check values
 			if(strlen($name) < 3) {
 				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
 				exit();
 			}
-			if(strlen($category) < 3) {
-				echo json_encode(['code' => 422, 'message' => 'Category too short']);	
-				exit();
-			}
 			
-			$query = "INSERT INTO billers (name, category) VALUES (:name, :category)";
+			$query = "INSERT INTO billers (user_id, category_id, name) VALUES (user_id, :category_id, :name)";
 			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(':user_id', $id);
+			$stmt->bindParam(':category_id', $category_id);
 			$stmt->bindParam(':name', $name);
-			$stmt->bindParam(':category', $category);
 				
 			if($stmt->execute()) {	
 			
-				echo json_encode(['code' => 201, 'message' => 'Biller created', "token" => $refreshed_token->getTokenString()]);			
+				echo json_encode([
+					'code' => 201, 'message' => 'Biller created', 
+					"token" => $refreshed_token->getTokenString()
+				]);			
 
 			} else {
 				
-				echo json_encode(['code' => 500, 'message' => 'Biller not created', "token" => $refreshed_token->getTokenString()]);		
+				echo json_encode([
+					'code' => 500, 
+					'message' => 'Biller not created', 
+					"token" => $refreshed_token->getTokenString()
+				]);		
+
+			}
+			
+		}
+		
+		/**
+		 * Create category
+		 *
+		 * @param integer $id user id
+		 *
+		 * @return JSON 422 if bad entity | boolean true if created | boolean false if db error
+		 */
+		function createCategory($id, $refreshed_token) {
+			
+			// Retrieve POST variables
+			$name = $_REQUEST['name'];
+				
+			// Check values
+			if(strlen($name) < 3) {
+				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
+				exit();
+			}
+			
+			$query = "INSERT INTO categories (user_id, category_name) VALUES (:id, :name)";
+			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(':id', $id);
+			$stmt->bindParam(':name', $name);
+				
+			if($stmt->execute()) {	
+			
+				echo json_encode([
+					'code' => 201, 'message' => 'Category created', 
+					"token" => $refreshed_token->getTokenString()
+				]);			
+
+			} else {
+				
+				echo json_encode([
+					'code' => 500, 'message' => 'Category not created', 
+					"token" => $refreshed_token->getTokenString()
+				]);		
 
 			}
 			

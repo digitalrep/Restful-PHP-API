@@ -8,8 +8,11 @@
 	 */
 	 
 	 
+	//$database = "sqlite";
+	$database = "MySQL"; 
+	 
 	// Create DB tables. 
-	include '../src/database/create_tables.php';
+	include '../src/database/create_tables.php'; 
 	
 	// Models
 	include '../src/models/Token.php';
@@ -33,9 +36,9 @@
 	// JWT Secret
 	$secret = "rvMuQ1MJ002IeWcl09TT4grwUxz41sSR";
 	
-	// 'Router' 
-	if(function_exists($actions[1])) {
-		call_user_func_array($actions[1], array($secret));
+	// Router
+	if($actions[1] != '') {
+		$object = new $actions[1]($secret);
 	}
 
 ?>
