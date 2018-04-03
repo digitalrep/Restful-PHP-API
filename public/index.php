@@ -6,10 +6,7 @@
 	 * Author: digitalrep@live.com.au
 	 *
 	 */
-	 
-	 
-	//$database = "sqlite";
-	$database = "MySQL"; 
+
 	 
 	// Create DB tables. 
 	include '../src/database/create_tables.php'; 

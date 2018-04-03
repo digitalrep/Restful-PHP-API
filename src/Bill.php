@@ -3,138 +3,96 @@
 	class bill {
 		
 		private $secret;
+		private $id;
+		private $database;
 		
-		public function __construct($secret) {
+		public function __construct($secret, $database) {
 		
 			$this->secret = $secret;
+			$this->database = $database;
 			
-			$method = $_SERVER['REQUEST_METHOD'];
+			// Make sure token is valid
+			$tokenHelper = new TokenHelper($this->secret);
+			$this->id = $tokenHelper->getUserId();			
 			
-			switch($method) {
-				case 'GET':
-					$this->getBill();
-					break;
-				case 'POST':
-					$this->postBill();
-					break;
-				case 'PUT':
-					$this->putBill();
-					break;
-				case 'PATCH':
-					$this->patchBill();
-					break;
-				case 'DELETE':
-					$this->deleteBill();
-					break;
+			if($this->id == 0) {
+				
+				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
+				
+			} else {
+				
+				$method = $_SERVER['REQUEST_METHOD'];
+			
+				switch($method) {
+					case 'GET':
+						$this->getBill();
+						break;
+					case 'POST':
+						$this->postBill();
+						break;
+					case 'PUT':
+						$this->putBill();
+						break;
+					case 'PATCH':
+						$this->patchBill();
+						break;
+					case 'DELETE':
+						$this->deleteBill();
+						break;
+				}
+				
 			}
 			
 		}
 	
 		private function getBill() {
-
-			// Make sure token is valid
-			$tokenHelper = new TokenHelper($this->secret);
-			$id = $tokenHelper->getUserId();
+	
+			$refreshed_token = new Token($this->id, $this->secret, null);
 				
-			if($id != 0) {
-					
-				$refreshed_token = new Token($id, $this->secret, null);
-					
-				// Retrieve the bills
-				$dbmanager = new DBManager();
-				$dbmanager->getBills($id, $refreshed_token);
-					
-			} else {
-				
-				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
-				
-			}
-			
+			// Retrieve the bills
+			$dbmanager = new DBManager($this->database);
+			$dbmanager->getBills($this->id, $refreshed_token);
+		
 		}
 			
 		private function postBill() {
-				
-			// Make sure token is valid
-			$tokenHelper = new TokenHelper($this->secret);
-			$id = $tokenHelper->getUserId();
-				
-			if($id != 0) {
 					
-				$refreshed_token = new Token($id, $this->secret, null);
+			$refreshed_token = new Token($this->id, $this->secret, null);
 						
-				// Create new bill
-				$dbmanager = new DBManager();
-				$dbmanager->createBill($id, $refreshed_token);	
-					
-			} else {
-				
-				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
-				
-			}
-
+			// Create new bill
+			$dbmanager = new DBManager($this->database);
+			$dbmanager->createBill($this->id, $refreshed_token);			
+			
 		} 
 			
 		private function putBill() {
 				
-			// Make sure token is valid
-			$tokenHelper = new TokenHelper($this->secret);
-			$id = $tokenHelper->getUserId();
+			$refreshed_token = new Token($this->id, $this->secret, null);
 				
-			if($id != 0) {
-					
-				$refreshed_token = new Token($id, $this->secret, null);
-				
-				// Patch bill
-				$dbmanager = new DBManager();
-				$dbmanager->updateBill($id, $refreshed_token);				
-					
-			} else {
-					
-				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
-					
-			}
+			// Patch bill
+			$dbmanager = new DBManager($this->database);
+			$dbmanager->updateBill($this->id, $refreshed_token);					
+			
 		}
 			
 		private function patchBill() {
+			
+			$refreshed_token = new Token($this->id, $this->secret, null);
+					
+			// Patch bill
+			$dbmanager = new DBManager($this->database);
+			$dbmanager->updateBillStatus($this->id, $refreshed_token);							
 				
-			// Make sure token is valid
-			$tokenHelper = new TokenHelper($this->secret);
-			$id = $tokenHelper->getUserId();
-				
-			if($id != 0) {
-					
-				$refreshed_token = new Token($id, $this->secret, null);
-					
-				// Patch bill
-				$dbmanager = new DBManager();
-				$dbmanager->updateBillStatus($id, $refreshed_token);							
-				
-			} else {
-					
-				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
-					
-			}
 		}
 		
 		private function deleteBill() {
-							
-			// Make sure token is valid
-			$tokenHelper = new TokenHelper($this->secret);
-			$id = $tokenHelper->getUserId();
-				
-			if($id != 0) {
+		
+			$refreshed_token = new Token($this->id, $this->secret, null);
 
-				$refreshed_token = new Token($id, $this->secret, null);
-
-				// Delete bill
-				$dbmanager = new DBManager();
-				$dbmanager->deleteBill($id, $refreshed_token);	
-					
-			} else {
-					
-				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
-					
-			}
+			// Delete bill
+			$dbmanager = new DBManager($this->database);
+			$dbmanager->deleteBill($this->id, $refreshed_token);	
+			
 		}	
 
 	}

@@ -3,6 +3,7 @@
 	class login {
 		
 		private $secret;
+		private $db;
 		
 		public function __construct($secret) {
 		

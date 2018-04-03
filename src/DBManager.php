@@ -9,12 +9,8 @@
 
 		public function __construct() {
 			
-			if($database == "MySQL") {
-				$db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');	
-			} else {
-				$this->db = new PDO("sqlite:../src/database/database.sqlite");
-			}
-			
+			$this->db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
+			//$this->db = new PDO("sqlite:../src/database/database.sqlite");
 			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
 		}
