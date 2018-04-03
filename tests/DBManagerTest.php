@@ -2,6 +2,7 @@
 
 	use PHPUnit\Framework\TestCase;
 	use PHPUnit\DbUnit\TestCaseTrait;
+	use PHPUnit\DbUnit\Operation\Truncate;
 	
 	class DBManagerTest extends TestCase {
 		
@@ -11,12 +12,12 @@
 		
 		final public function getConnection() {
 			
-			//To test sqlite database, make owner of this file www-data:www-data
-			$this->pdo = new PDO("sqlite:" . __DIR__ . DIRECTORY_SEPARATOR . "../src/database/database.sqlite");
-			return $this->createDefaultDBConnection($this->pdo, "database.sqlite");
+			//[SQLSTATE[HY000]: General error: 8 attempt to write a readonly database]
+			//$this->pdo = new PDO("sqlite:" . __DIR__ . DIRECTORY_SEPARATOR . "../src/database/database.sqlite");
+			//return $this->createDefaultDBConnection($this->pdo, "database.sqlite");
 			
-			//$this->pdo = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
-			//return $this->createDefaultDBConnection($this->pdo, "bills");
+			$this->pdo = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
+			return $this->createDefaultDBConnection($this->pdo, "bills");
 
 		}
 		
@@ -38,6 +39,15 @@
 			
 			return $this->createXMLDataSet(__DIR__ . DIRECTORY_SEPARATOR . 'database.xml');
 		
+		}
+		
+		public function tearDown() {
+		
+			// This removes *all* data from database, even existing data
+			
+			//$truncateOperation = new Truncate();
+			//$truncateOperation->execute($this->getConnection(), $this->getDataSet());
+			
 		}
 		
 	}
