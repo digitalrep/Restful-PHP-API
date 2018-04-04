@@ -1,5 +1,8 @@
 <?php
 
+	/**
+	 * Class that does database operations for User class
+	 */
 	class DBManager {
 		
 		/**
@@ -18,9 +21,9 @@
 		/**
 		 * Get bills for user
 		 *
-		 * @param integer $id user id
+		 * @param integer $id 
 		 *
-		 * @return array[] $bills Bill objects | boolean false if db error
+		 * @return array[] $bills Bills | boolean false if db error
 		 */
 		public function getBills($id) {
 		
@@ -46,6 +49,10 @@
 		 * Create bill for user
 		 *
 		 * @param integer $id user id
+		 * @param integer $biller_id 
+		 * @param integer $amount 
+		 * @param integer $due (timestamp)
+		 * @param integer $status (1 or 0)
 		 *
 		 * @return boolean true if created | boolean false if db error
 		 */
@@ -71,8 +78,8 @@
 		/**
 		 * Update bill for user
 		 *
-		 * @param integer $id user id
-		 * @param input stream php://input for PUT vars
+		 * @param integer $id 
+		 * @param input stream php://input (PUT vars)
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
@@ -116,9 +123,9 @@
 		}
 		
 		/**
-		 * Update bill for user
+		 * Update bill status for user
 		 *
-		 * @param integer $id user id
+		 * @param integer $id 
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
@@ -165,15 +172,13 @@
 		/**
 		 * Delete bill for user
 		 *
-		 * @param integer $id user id
-		 * @param $_SERVER['REQUEST_URI'] to get bill id
+		 * @param integer $user_id 
+		 * @param integer $bill id
 		 *
 		 * @return true if updated | boolean false if db error
 		 */
-		function deleteBill($id, $bill_id) {
+		function deleteBill($user_id, $bill_id) {
 		
-			$user_id = $id;
-			
 			$query = "SELECT * FROM bills WHERE id = :bill_id AND user_id = :user_id LIMIT 1";
 			
 			$stmt = $this->db->prepare($query);
@@ -206,23 +211,25 @@
 		/**
 		 * Create biller
 		 *
-		 * @param integer $id user id
+		 * @param integer $user_id 
+		 * @param integer $category_id
+		 * @param string $biller_name
 		 *
 		 * @return JSON 422 if bad entity | boolean true if created | boolean false if db error
 		 */
-		function createBiller($id, $category_id, $name) {
+		function createBiller($user_id, $category_id, $biller_name) {
 			
 			// Check values
-			if(strlen($name) < 3) {
+			if(strlen($biller_name) < 3) {
 				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
 				exit();
 			}
 			
 			$query = "INSERT INTO billers (user_id, category_id, name) VALUES (user_id, :category_id, :name)";
 			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(':user_id', $id);
+			$stmt->bindParam(':user_id', $user_id);
 			$stmt->bindParam(':category_id', $category_id);
-			$stmt->bindParam(':name', $name);
+			$stmt->bindParam(':name', $biller_name);
 				
 			if($stmt->execute()) {	
 			
@@ -239,11 +246,11 @@
 		/**
 		 * Get billers
 		 *
-		 * @param integer $id user id
+		 * @param integer $user_id 
 		 *
-		 * @return array[] $billers Biller objects | boolean false if db error
+		 * @return array[] $billers Billers | boolean false if db error
 		 */
-		function getBillers($id) {
+		function getBillers($user_id) {
 			
 			$query = "
 			SELECT billers.id, billers.name, categories.category_name
@@ -252,7 +259,7 @@
 			ON billers.category_id = categories.id WHERE billers.user_id = :user_id";
 			$stmt = $this->db->prepare($query);
 			if(!$stmt) { print_r($this->db->errorInfo()); }
-			$stmt->bindParam(':user_id', $id);
+			$stmt->bindParam(':user_id', $user_id);
 			
 			if($stmt->execute()) {
 				$billers = $stmt->fetchAll();
@@ -266,11 +273,11 @@
 		/**
 		 * Get categories
 		 *
-		 * @param integer $id user id
+		 * @param integer $user_id
 		 *
-		 * @return array[] $categories Category objects | boolean false if db error
+		 * @return array[] $categories Categories | boolean false if db error
 		 */
-		function getCategories($id) {
+		function getCategories($user_id) {
 			
 			$query = "
 			SELECT categories.id, categories.category_name
@@ -278,7 +285,7 @@
 			WHERE user_id = :user_id";
 			$stmt = $this->db->prepare($query);
 			if(!$stmt) { print_r($this->db->errorInfo()); }
-			$stmt->bindParam(':user_id', $id);
+			$stmt->bindParam(':user_id', $user_id);
 			
 			if($stmt->execute()) {
 				$categories = $stmt->fetchAll();
@@ -292,22 +299,22 @@
 		/**
 		 * Create category
 		 *
-		 * @param integer $id user id
+		 * @param integer $user_id
 		 *
 		 * @return JSON 422 if bad entity | boolean true if created | boolean false if db error
 		 */
-		function createCategory($id, $name) {
+		function createCategory($user_id, $category_name) {
 			
 			// Check values
-			if(strlen($name) < 3) {
+			if(strlen($category_name) < 3) {
 				echo json_encode(['code' => 422, 'message' => 'Name too short']);	
 				exit();
 			}
 			
 			$query = "INSERT INTO categories (user_id, category_name) VALUES (:id, :name)";
 			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(':id', $id);
-			$stmt->bindParam(':name', $name);
+			$stmt->bindParam(':id', $user_id);
+			$stmt->bindParam(':name', $category_name);
 				
 			if($stmt->execute()) {	
 			
@@ -324,18 +331,19 @@
 		/**
 		 * Update category name for user
 		 *
-		 * @param integer $id user id
-		 * @param string $name category name
+		 * @param integer $user_id
+		 * @param integer $category_id
+		 * @param string $category_name
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
-		function patchCategory($id, $category_id, $name) { 
+		function patchCategory($user_id, $category_id, $category_name) { 
 			
 			$query = "SELECT * FROM categories WHERE id = :category_id AND user_id = :user_id LIMIT 1";
 			
 			$stmt = $this->db->prepare($query);
 			$stmt->bindParam(":category_id", $category_id);
-			$stmt->bindParam(":user_id", $id);
+			$stmt->bindParam(":user_id", $user_id);
 			$stmt->execute();
 			
 			$bill = $stmt->fetch(1);
@@ -349,9 +357,9 @@
 				WHERE id = :category_id AND user_id = :user_id";
 					
 				$stmt = $this->db->prepare($query);
-				$stmt->bindParam(":name", $name);
+				$stmt->bindParam(":name", $category_name);
 				$stmt->bindParam(":category_id", $category_id);
-				$stmt->bindParam(":user_id", $id);
+				$stmt->bindParam(":user_id", $user_id);
 
 				if($stmt->execute()) {		
 					return true;
@@ -366,19 +374,20 @@
 		/**
 		 * Update biller for user
 		 *
-		 * @param integer $id user id
-		 * @param string $name name
-		 * @param interger $category_id category id
+		 * @param integer $user_id 
+		 * @param string $biller_id
+		 * @param interger $category_id 
+		 * @param string $biller_name
 		 *
 		 * @return boolean true if updated | boolean false if db error
 		 */
-		function updateBiller($id, $biller_id, $category_id, $name) { 
+		function updateBiller($user_id, $biller_id, $category_id, $biller_name) { 
 			
 			$query = "SELECT * FROM billers WHERE id = :biller_id AND user_id = :user_id LIMIT 1";
 			
 			$stmt = $this->db->prepare($query);
 			$stmt->bindParam(":biller_id", $biller_id);
-			$stmt->bindParam(":user_id", $id);
+			$stmt->bindParam(":user_id", $user_id);
 			$stmt->execute();
 			
 			$biller = $stmt->fetch(1);
@@ -392,10 +401,10 @@
 				WHERE id = :biller_id AND user_id = :user_id";
 					
 				$stmt = $this->db->prepare($query);
-				$stmt->bindParam(":name", $name);
+				$stmt->bindParam(":name", $biller_name);
 				$stmt->bindParam(":category_id", $category_id);
 				$stmt->bindParam(":biller_id", $biller_id);
-				$stmt->bindParam(":user_id", $id);
+				$stmt->bindParam(":user_id", $user_id);
 
 				if($stmt->execute()) {		
 					return true;
@@ -415,9 +424,7 @@
 		 *
 		 * @return true if deleted | boolean false if not found or db error
 		 */
-		function deleteCategory($id, $category_id) {
-		
-			$user_id = $id;
+		function deleteCategory($user_id, $category_id) {
 			
 			$query = "SELECT * FROM categories WHERE id = :id AND user_id = :user_id LIMIT 1";
 			
@@ -456,10 +463,8 @@
 		 *
 		 * @return true if deleted | boolean false if not found or db error
 		 */
-		function deleteBiller($id, $biller_id) {
-		
-			$user_id = $id;
-			
+		function deleteBiller($user_id, $biller_id) {
+
 			$query = "SELECT * FROM billers WHERE id = :id AND user_id = :user_id LIMIT 1";
 			
 			$stmt = $this->db->prepare($query);
@@ -495,6 +500,8 @@
 		 * @param string $_REQUEST['name'] 
 		 * @param string $_REQUEST['email'] 
 		 * @param string $_REQUEST['password'] 
+		 *
+		 * @throws Exception $e - email address already registered
 		 *
 		 * @return JSON code 422 if bad entity | boolean true if registered | boolean false if db error
 		 */

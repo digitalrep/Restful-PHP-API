@@ -1,11 +1,22 @@
 <?php
 
+	/**
+	 * Class that handles biller actions
+	 */
 	class biller {
 		
 		private $secret;
 		private $id;
 		private $user;
 		
+		/**
+		 * Takes a secret string and uses TokenHelper to verify it, 
+		 * then obtains User id and creates User based on that id.
+		 * If can't verify token, returns 401.
+		 * Once User is verified, routes HTTP actions to function in file.
+		 * 
+		 * @param string $secret
+		 */
 		public function __construct($secret) {
 		
 			// Make sure token is valid
@@ -44,6 +55,11 @@
 			
 		}
 		
+		/**
+		 * Gets all billers created by User
+		 *
+		 * @return Biller[] 
+		 */	
 		private function getBiller() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);	
@@ -72,6 +88,14 @@
 
 		} 
 		
+		/**
+		 * Creates a biller
+		 *
+		 * @param integer $_REQUEST['category_id']
+		 * @param integer $_REQUEST['name']
+		 *
+		 * @return boolean
+		 */	
 		private function postBiller() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -96,6 +120,15 @@
 
 		} 
 		
+		/**
+		 * Updates a biller
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
+		 * @param integer $_PUT['name']
+		 * @param string $_PUT['category_id'] 
+		 *
+		 * @return boolean
+		 */
 		private function updateBiller() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -128,6 +161,13 @@
 				
 		}
 		
+		/**
+		 * Delete biller
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
+		 *
+		 * @return boolean
+		 */	
 		private function deleteBiller() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);

@@ -1,17 +1,44 @@
 <?php
 
+	/**
+	 * Class that represents Token 
+	 */
 	class Token {
 		
+		/**
+		 * @var string
+		 */
 		private $token_string;
 		
+		/**
+		 * Creates a token with id, secret and iat provided
+		 *
+		 * @param integer $user_id 
+		 * @param string $secret
+		 * @param integer $iat (timestamp)
+		 */
 		public function __construct($id, $secret, $iat) {
 			$this->token_string = $this->createToken($id, $secret, $iat);
 		}
 		
+		/**
+		 * Returns the token string
+		 *
+		 * @return string $token_string
+		 */
 		public function getTokenString() {
 			return $this->token_string;
 		}
 
+		/**
+		 * Creates a token with id, secret and iat provided
+		 *
+		 * @param integer $user_id 
+		 * @param string $secret
+		 * @param integer $iat (timestamp)
+		 *
+		 * @return string $token_string
+		 */
 		private function createToken($id, $secret, $iat) {
 			
 			$header = '{"alg" : "HS256", "typ" : "JWT"}';

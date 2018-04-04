@@ -1,11 +1,22 @@
 <?php
 
+	/**
+	 * Class that handles category actions
+	 */
 	class category {
 		
 		private $secret;
 		private $id;
 		private $user;
 		
+		/**
+		 * Takes a secret string and uses TokenHelper to verify it, 
+		 * then obtains User id and creates User based on that id.
+		 * If can't verify token, returns 401.
+		 * Once User is verified, routes HTTP actions to function in file.
+		 * 
+		 * @param string $secret
+		 */
 		public function __construct($secret) {
 		
 			// Make sure token is valid
@@ -44,6 +55,11 @@
 			
 		}
 		
+		/**
+		 * Gets all categories created by User
+		 *
+		 * @return Category[] 
+		 */	
 		private function getCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);	
@@ -72,6 +88,13 @@
 
 		} 
 		
+		/**
+		 * Creates a category
+		 *
+		 * @param integer $_REQUEST['name']
+		 *
+		 * @return boolean
+		 */	
 		private function postCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -99,6 +122,14 @@
 
 		} 
 		
+		/**
+		 * Updates category
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (category id)
+		 * @param integer $_PUT['name']
+		 *
+		 * @return boolean
+		 */
 		private function updateCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -130,6 +161,13 @@
 				
 		}
 		
+		/**
+		 * Delete category
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (category id)
+		 *
+		 * @return boolean
+		 */	
 		private function deleteCategory() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);

@@ -1,10 +1,14 @@
 <?php
 	
+	/**
+	 * Class that handles registering new users
+	 */
 	class register {
 		
-		private $secret;
-		
-		public function __construct($secret) {
+		/**
+		 * Registers a new user 
+		 */
+		public function __construct() {
 		
 			$this->secret = $secret;
 			
@@ -15,7 +19,7 @@
 					echo json_encode(["code" => 405, "message" => "Method not allowed"]);
 					break;
 				case 'POST':
-					$dbmanager = new DBManager2();
+					$dbmanager = new DBManager();
 					$dbmanager->register();
 					break;
 				case 'PUT':

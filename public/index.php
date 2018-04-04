@@ -19,11 +19,11 @@
 	include '../src/TokenHelper.php';
 	include '../src/DBManager.php';
 	
-	// Unprotected 
+	// Unprotected Routes
 	include '../src/user/Register.php';
 	include '../src/user/Login.php';
 	
-	// Protected
+	// Protected Routes
 	include '../src/Bill.php';
 	include '../src/Biller.php';
 	include '../src/Category.php';

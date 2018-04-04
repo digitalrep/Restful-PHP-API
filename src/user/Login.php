@@ -1,10 +1,19 @@
 <?php
 	
+	/**
+	 * Class that handles login actions
+	 */
 	class login {
 		
+		/* @var string */
 		private $secret;
-		private $db;
 		
+		/**
+		 * Verifies user based on email and password, 
+		 * then returns fresh jwt token
+		 * 
+		 * @param string $secret
+		 */
 		public function __construct($secret) {
 		
 			$this->secret = $secret;
@@ -16,7 +25,7 @@
 					echo json_encode(["code" => 405, "message" => "Method not allowed"]);
 					break;
 				case 'POST':
-					$dbmanager = new DBManager2();
+					$dbmanager = new DBManager();
 					$dbmanager->login($secret);
 					break;
 				case 'PUT':

@@ -1,14 +1,25 @@
 <?php
 
+	/**
+	 * Class that handles bill actions
+	 */
 	class bill {
 		
 		private $secret;
 		private $id;
 		private $user;
 		
+		/**
+		 * Takes a secret string and uses TokenHelper to verify it, 
+		 * then obtains User id and creates User based on that id.
+		 * If can't verify token, returns 401.
+		 * Once User is verified, routes HTTP actions to function in file.
+		 * 
+		 * @param string $secret
+		 */
 		public function __construct($secret) {
 			
-			// Make sure token is valid
+			// Make sure jwt token is valid and retrieve user based on id
 			$this->secret = $secret;
 			$tokenHelper = new TokenHelper($this->secret);
 			$this->id = $tokenHelper->getUserId();	
@@ -44,6 +55,11 @@
 			
 		}
 	
+		/**
+		 * Gets all bills created by User
+		 *
+		 * @return Bill[] 
+		 */		
 		private function getBill() {
 	
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -72,6 +88,16 @@
 		
 		}
 			
+		/**
+		 * Creates a bill 
+		 *
+		 * @param integer $_REQUEST['biller_id']
+		 * @param integer $_REQUEST['amount']
+		 * @param integer $_REQUEST['due'] (timestamp)
+		 * @param integer $_REQUEST['status'] (1 or 0)
+		 *
+		 * @return boolean
+		 */	
 		private function postBill() {
 					
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -98,6 +124,16 @@
 			
 		} 
 			
+		/**
+		 * Updates a bill 
+		 *
+		 * @param integer $_PUT['biller_id']
+		 * @param integer $_PUT['amount']
+		 * @param integer $_PUT['due'] (timestamp)
+		 * @param integer $_PUT['status'] (1 or 0)
+		 *
+		 * @return boolean
+		 */	
 		private function putBill() {
 				
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -131,6 +167,13 @@
 			
 		}
 			
+		/**
+		 * Change bill status
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (bill id)
+		 *
+		 * @return boolean
+		 */	
 		private function patchBill() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
@@ -156,6 +199,13 @@
 				
 		}
 		
+		/**
+		 * Delete bill
+		 *
+		 * @param integer $_SERVER['REQUEST_URI'] (bill id)
+		 *
+		 * @return boolean
+		 */	
 		private function deleteBill() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);
