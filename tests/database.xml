@@ -24,7 +24,17 @@
 		<row>
 			<value>2</value>
 			<value>1</value>
+			<value>House</value>
+		</row>
+		<row>
+			<value>3</value>
+			<value>1</value>
 			<value>Communications</value>
+		</row>
+		<row>
+			<value>4</value>
+			<value>1</value>
+			<value>Car</value>
 		</row>
 	</table>
 	<table name="billers">
@@ -47,8 +57,38 @@
 		<row>
 			<value>3</value>
 			<value>1</value>
-			<value>2</value>
+			<value>3</value>
 			<value>Dodo</value>
+		</row>
+		<row>
+			<value>4</value>
+			<value>1</value>
+			<value>3</value>
+			<value>Amaysim</value>
+		</row>
+		<row>
+			<value>5</value>
+			<value>1</value>
+			<value>2</value>
+			<value>OC</value>
+		</row>
+		<row>
+			<value>6</value>
+			<value>1</value>
+			<value>2</value>
+			<value>Rates</value>
+		</row>
+		<row>
+			<value>7</value>
+			<value>1</value>
+			<value>1</value>
+			<value>Water</value>
+		</row>
+		<row>
+			<value>8</value>
+			<value>1</value>
+			<value>4</value>
+			<value>VicRoads</value>
 		</row>
 	</table>
 	<table name="bills">

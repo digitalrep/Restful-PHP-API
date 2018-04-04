@@ -13,6 +13,7 @@
 	
 	// Models
 	include '../src/models/Token.php';
+	include '../src/models/User.php';
 	
 	// Helpers
 	include '../src/TokenHelper.php';
@@ -25,6 +26,7 @@
 	// Protected
 	include '../src/Bill.php';
 	include '../src/Biller.php';
+	include '../src/Category.php';
 	
 	// Parse URI
 	//$action = preg_replace("/[^A-Za-z0-9 ]/", '', $_SERVER['REQUEST_URI']);

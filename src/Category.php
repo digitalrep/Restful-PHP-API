@@ -1,13 +1,13 @@
 <?php
 
-	class bill {
+	class category {
 		
 		private $secret;
 		private $id;
 		private $user;
 		
 		public function __construct($secret) {
-			
+		
 			// Make sure token is valid
 			$this->secret = $secret;
 			$tokenHelper = new TokenHelper($this->secret);
@@ -19,43 +19,43 @@
 				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
 				
 			} else {
-				
-				$method = $_SERVER['REQUEST_METHOD'];
 			
+				$method = $_SERVER['REQUEST_METHOD'];
+				
 				switch($method) {
 					case 'GET':
-						$this->getBill();
+						$this->getCategory();
 						break;
 					case 'POST':
-						$this->postBill();
+						$this->postCategory();
 						break;
 					case 'PUT':
-						$this->putBill();
+						$this->updateCategory();	
 						break;
 					case 'PATCH':
-						$this->patchBill();
+						echo json_encode(["code" => 405, "message" => "Method not allowed"]);					
 						break;
 					case 'DELETE':
-						$this->deleteBill();
+						$this->deleteCategory();
 						break;
 				}
 				
 			}
 			
 		}
-	
-		private function getBill() {
-	
-			$refreshed_token = new Token($this->id, $this->secret, null);
-				
-			$bills = $this->user->getBills();
+		
+		private function getCategory() {
 			
-			if($bills) {
+			$refreshed_token = new Token($this->id, $this->secret, null);	
+			
+			$categories = $this->user->getCategories();
+			
+			if($categories) {
 				
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
-					'bills' => $bills,
+					'categories' => $categories,
 					'token' => $refreshed_token->getTokenString()
 				]);
 					
@@ -64,82 +64,56 @@
 				echo json_encode([
 					'code' => 404, 
 					'message' => 'Not found',
-					'bills' => '',
+					'categories' => '',
 					'token' => $refreshed_token->getTokenString()
 				]);	
 				
 			}
+
+		} 
 		
-		}
+		private function postCategory() {
 			
-		private function postBill() {
-					
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
 			// Retrieve POST variables
-			$biller_id = $_REQUEST['biller_id'];
-			$amount = str_replace(".", "", $_REQUEST['amount']); // Convert to integer **Require two spots after decimal on front end
-			$due = $_REQUEST['due']; // Has to be unix timestamp format
-			$status = $_REQUEST['status']; // Integer 0 or 1
-						
-			if($this->user->addBill($biller_id, $amount, $due, $status)) {
+			$name = $_REQUEST['name'];
+			
+			if($this->user->addCategory($name)) {
+				
 				echo json_encode([
 					'code' => 201, 
-					'message' => 'Bill created',
+					'message' => 'Biller created',
 					'token' => $refreshed_token->getTokenString()
-				]);
+				]);							
+				
 			} else {
+			
 				echo json_encode([
 					'code' => 424, 
-					'message' => 'Bill not created',
+					'message' => 'Biller not created',
 					'token' => $refreshed_token->getTokenString()
 				]);
-			}				
 			
+			}
+
 		} 
+		
+		private function updateCategory() {
 			
-		private function putBill() {
-				
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
-			// Get bill id from URI
+			// Get category id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$bill_id = $sections[2];
+			$category_id = $sections[2];
 				
 			parse_str(file_get_contents("php://input"), $_PUT);
 				
 			// Retrieve PUT variables
 			// All must be set as this is a PUT request
-			$biller_id = $_PUT['biller_id'];
-			$amount = str_replace(".", "", $_PUT['amount']);
-			$due = $_PUT['due'];
-			$status = $_PUT['status'];
-				
-			if($this->user->updateBill($bill_id, $biller_id, $amount, $due, $status)) {
-				echo json_encode([
-					'code' => 200, 
-					'message' => 'OK',
-					'token' => $refreshed_token->getTokenString()
-				]);
-			} else {
-				echo json_encode([
-					'code' => 404, 
-					'message' => 'Not found PUT',
-					'token' => $refreshed_token->getTokenString()
-				]);
-			}				
-			
-		}
-			
-		private function patchBill() {
-			
-			$refreshed_token = new Token($this->id, $this->secret, null);
-			
-			// Get bill id from URI
-			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$bill_id = $sections[2];
+			$name = $_PUT['name'];
 					
-			if($this->user->changeBillStatus($bill_id)) {		
+			if($this->user->updateCategoryName($category_id, $name)) {		
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
@@ -156,15 +130,15 @@
 				
 		}
 		
-		private function deleteBill() {
+		private function deleteCategory() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);
-
-			// Get bill id from URI
+			
+			// Get category id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$bill_id = $sections[2];
+			$category_id = $sections[2];
 				
-			if($this->user->deleteBill($bill_id)) {
+			if($this->user->deleteCategory($category_id)) {
 				
 				echo json_encode([
 					'code' => 200, 
@@ -181,9 +155,9 @@
 				]);	
 				
 			}
-			
-		}	
-
+		
+		}
+		
 	}
 
 ?>

@@ -16,7 +16,7 @@
 					echo json_encode(["code" => 405, "message" => "Method not allowed"]);
 					break;
 				case 'POST':
-					$dbmanager = new DBManager();
+					$dbmanager = new DBManager2();
 					$dbmanager->login($secret);
 					break;
 				case 'PUT':

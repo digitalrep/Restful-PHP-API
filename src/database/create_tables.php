@@ -1,7 +1,5 @@
 <?php
 
-	if($database == "MySQL") { 
-	
 		$db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');	
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		
@@ -70,7 +68,7 @@
 			echo $e->getMessage();
 		}	
 		
-	} else /* sqlite */ {
+	/* sqlite 
 		
 		$db = new PDO("sqlite:../src/database/database.sqlite");
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -153,7 +151,7 @@ EOF;
 		echo $e->getMessage();
 	}		
 		
-	}
+	*/
 
 
 	
