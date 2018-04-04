@@ -20,13 +20,13 @@
 	include '../src/DBManager.php';
 	
 	// Unprotected Routes
-	include '../src/user/Register.php';
-	include '../src/user/Login.php';
+	include '../src/user/RegisterController.php';
+	include '../src/user/LoginController.php';
 	
 	// Protected Routes
-	include '../src/Bill.php';
-	include '../src/Biller.php';
-	include '../src/Category.php';
+	include '../src/BillController.php';
+	include '../src/BillerController.php';
+	include '../src/CategoryController.php';
 	
 	// Parse URI
 	//$action = preg_replace("/[^A-Za-z0-9 ]/", '', $_SERVER['REQUEST_URI']);
@@ -37,7 +37,8 @@
 	
 	// Router
 	if($actions[1] != '') {
-		$object = new $actions[1]($secret);
+		$name = $actions[1] . "Controller";
+		$object = new $name($secret);
 	}
 
 ?>

@@ -3,7 +3,7 @@
 	/**
 	 * Class that handles registering new users
 	 */
-	class register {
+	class RegisterController {
 		
 		/**
 		 * Registers a new user 

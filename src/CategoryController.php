@@ -1,9 +1,9 @@
 <?php
 
 	/**
-	 * Class that handles biller actions
+	 * Class that handles category actions
 	 */
-	class biller {
+	class CategoryController {
 		
 		private $secret;
 		private $id;
@@ -35,19 +35,19 @@
 				
 				switch($method) {
 					case 'GET':
-						$this->getBiller();
+						$this->getCategory();
 						break;
 					case 'POST':
-						$this->postBiller();
+						$this->postCategory();
 						break;
 					case 'PUT':
-						$this->updateBiller();
+						$this->updateCategory();	
 						break;
 					case 'PATCH':
-						echo json_encode(["code" => 405, "message" => "Method not allowed"]);						
+						echo json_encode(["code" => 405, "message" => "Method not allowed"]);					
 						break;
 					case 'DELETE':
-						$this->deleteBiller();					
+						$this->deleteCategory();
 						break;
 				}
 				
@@ -56,22 +56,22 @@
 		}
 		
 		/**
-		 * Gets all billers created by User
+		 * Gets all categories created by User
 		 *
-		 * @return Biller[] 
+		 * @return Category[] 
 		 */	
-		private function getBiller() {
+		private function getCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);	
 			
-			$billers = $this->user->getBillers();
+			$categories = $this->user->getCategories();
 			
-			if($billers) {
+			if($categories) {
 				
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
-					'billers' => $billers,
+					'categories' => $categories,
 					'token' => $refreshed_token->getTokenString()
 				]);
 					
@@ -80,7 +80,7 @@
 				echo json_encode([
 					'code' => 404, 
 					'message' => 'Not found',
-					'billers' => '',
+					'categories' => '',
 					'token' => $refreshed_token->getTokenString()
 				]);	
 				
@@ -89,62 +89,62 @@
 		} 
 		
 		/**
-		 * Creates a biller
+		 * Creates a category
 		 *
-		 * @param integer $_REQUEST['category_id']
 		 * @param integer $_REQUEST['name']
 		 *
 		 * @return boolean
 		 */	
-		private function postBiller() {
+		private function postCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
 			// Retrieve POST variables
-			$category_id = $_REQUEST['category_id'];
 			$name = $_REQUEST['name'];
 			
-			if($this->user->addBiller($category_id, $name)) {
+			if($this->user->addCategory($name)) {
+				
 				echo json_encode([
 					'code' => 201, 
 					'message' => 'Biller created',
 					'token' => $refreshed_token->getTokenString()
-				]);
+				]);							
+				
 			} else {
+			
 				echo json_encode([
 					'code' => 424, 
 					'message' => 'Biller not created',
 					'token' => $refreshed_token->getTokenString()
 				]);
-			}		
+			
+			}
 
 		} 
 		
 		/**
-		 * Updates a biller
+		 * Updates category
 		 *
-		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
+		 * @param integer $_SERVER['REQUEST_URI'] (category id)
 		 * @param integer $_PUT['name']
-		 * @param string $_PUT['category_id'] 
 		 *
 		 * @return boolean
 		 */
-		private function updateBiller() {
+		private function updateCategory() {
 			
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
-			// Get biller id from URI
+			// Get category id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$biller_id = $sections[2];
+			$category_id = $sections[2];
 				
 			parse_str(file_get_contents("php://input"), $_PUT);
 				
 			// Retrieve PUT variables
 			// All must be set as this is a PUT request
 			$name = $_PUT['name'];
-			$category_id = $_PUT['category_id'];
 					
-			if($this->user->updateBiller($biller_id, $category_id, $name)) {		
+			if($this->user->updateCategoryName($category_id, $name)) {		
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
@@ -154,7 +154,7 @@
 			} else {
 				echo json_encode([
 					'code' => 404, 
-					'message' => 'Not found',
+					'message' => 'Not found PATCH',
 					'token' => $refreshed_token->getTokenString()
 				]);
 			}						
@@ -162,21 +162,21 @@
 		}
 		
 		/**
-		 * Delete biller
+		 * Delete category
 		 *
-		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
+		 * @param integer $_SERVER['REQUEST_URI'] (category id)
 		 *
 		 * @return boolean
 		 */	
-		private function deleteBiller() {
+		private function deleteCategory() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
 			// Get category id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$biller_id = $sections[2];
+			$category_id = $sections[2];
 				
-			if($this->user->deleteBiller($biller_id)) {
+			if($this->user->deleteCategory($category_id)) {
 				
 				echo json_encode([
 					'code' => 200, 

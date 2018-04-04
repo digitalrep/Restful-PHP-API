@@ -66,7 +66,22 @@
 			$db->exec($sql);
 		} catch(Exception $e) {
 			echo $e->getMessage();
-		}	
+		}
+
+		// Payments
+		
+		try {
+			$sql = 	"CREATE TABLE IF NOT EXISTS payments (
+				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+				bill_id INT(5) NOT NULL,
+				amount INT(8) NOT NULL,
+				date INT(10) NOT NULL,
+				FOREIGN KEY(bill_id) REFERENCES bills(id)
+			)";
+			$db->exec($sql);
+		} catch(Exception $e) {
+			echo $e->getMessage();
+		}		
 		
 	/* sqlite 
 		

@@ -3,7 +3,7 @@
 	/**
 	 * Class that handles bill actions
 	 */
-	class bill {
+	class BillController {
 		
 		private $secret;
 		private $id;

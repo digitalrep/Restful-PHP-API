@@ -3,7 +3,7 @@
 	/**
 	 * Class that handles login actions
 	 */
-	class login {
+	class LoginController {
 		
 		/* @var string */
 		private $secret;
