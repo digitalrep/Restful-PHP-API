@@ -1,6 +1,6 @@
 <?php
 
-	class DBManager2 {
+	class DBManager {
 		
 		/**
 		 * @var PDO 

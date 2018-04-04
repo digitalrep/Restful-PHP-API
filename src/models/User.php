@@ -8,7 +8,7 @@
 		public function __construct($id) {
 			
 			$this->id = $id;
-			$this->dbmanager = new DBManager2();
+			$this->dbmanager = new DBManager();
 			
 		}
 		
