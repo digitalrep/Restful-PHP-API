@@ -1,8 +1,10 @@
 <?php
 
-	/**
-	 * Class that handles bill actions
-	 */
+	namespace Bills;
+	
+	use Bills\models\User;
+	use Bills\models\Token;
+	
 	class BillController {
 		
 		private $secret;

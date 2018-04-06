@@ -1,8 +1,9 @@
 <?php
 
-	/**
-	 * Class that does database operations for User class
-	 */
+	namespace Bills;
+	
+	use Bills\models\Token;
+
 	class DBManager {
 		
 		/**
@@ -12,9 +13,9 @@
 
 		public function __construct() {
 			
-			$this->db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
-			//$this->db = new PDO("sqlite:../src/database/database.sqlite");
-			$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			$this->db = new \PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
+			//$this->db = new \PDO("sqlite:../src/database/database.sqlite");
+			$this->db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 		
 		}
 		
@@ -179,33 +180,17 @@
 		 */
 		function deleteBill($user_id, $bill_id) {
 		
-			$query = "SELECT * FROM bills WHERE id = :bill_id AND user_id = :user_id LIMIT 1";
-			
+			$query = "DELETE FROM bills WHERE id = :bill_id AND user_id = :user_id";
 			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(":bill_id", $bill_id);
-			$stmt->bindParam(":user_id", $user_id);
-			$stmt->execute();
-			
-			$bill = $stmt->fetch(1);
-			
-			if(!$bill) {		
-			
-				return false;
-			
-			} else {
-
-				$query = "DELETE FROM bills WHERE id = :bill_id AND user_id = :user_id";
-				$stmt = $this->db->prepare($query);
-					
-				if($stmt->execute(array(':bill_id' => $bill_id, ':user_id' => $user_id))) {
-					return true;
-				} else {
-					return false;	
-				}
-					
+			$stmt->execute(array(':bill_id' => $bill_id, ':user_id' => $user_id));
+			$count = $stmt->rowCount();
 				
+			if($count > 0) {
+				return true;
+			} else {
+				return false;	
 			}
-		
+
 		}
 		
 		/**
@@ -225,7 +210,7 @@
 				exit();
 			}
 			
-			$query = "INSERT INTO billers (user_id, category_id, name) VALUES (user_id, :category_id, :name)";
+			$query = "INSERT INTO billers (user_id, category_id, name) VALUES (:user_id, :category_id, :name)";
 			$stmt = $this->db->prepare($query);
 			$stmt->bindParam(':user_id', $user_id);
 			$stmt->bindParam(':category_id', $category_id);
@@ -268,6 +253,75 @@
 				return false;
 			}
 			
+		}
+		
+		/**
+		 * Update biller for user
+		 *
+		 * @param integer $user_id 
+		 * @param string $biller_id
+		 * @param interger $category_id 
+		 * @param string $biller_name
+		 *
+		 * @return boolean true if updated | boolean false if db error
+		 */
+		function updateBiller($user_id, $biller_id, $category_id, $biller_name) { 
+			
+			$query = "SELECT * FROM billers WHERE id = :biller_id AND user_id = :user_id LIMIT 1";
+			
+			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(":biller_id", $biller_id);
+			$stmt->bindParam(":user_id", $user_id);
+			$stmt->execute();
+			
+			$biller = $stmt->fetch(1);
+			
+			if(!$biller) {		
+				return false;
+			} else {
+
+				$query = "UPDATE billers 
+				SET name = :name, category_id = :category_id
+				WHERE id = :biller_id AND user_id = :user_id";
+					
+				$stmt = $this->db->prepare($query);
+				$stmt->bindParam(":name", $biller_name);
+				$stmt->bindParam(":category_id", $category_id);
+				$stmt->bindParam(":biller_id", $biller_id);
+				$stmt->bindParam(":user_id", $user_id);
+
+				if($stmt->execute()) {		
+					return true;
+				} else {
+					return false;
+				}
+				
+			}			
+			
+		}
+		
+		/**
+		 * Delete biller for user
+		 *
+		 * @param integer $id user id
+		 * @param integer $biller_id biller id
+		 *
+		 * @return true if deleted | boolean false if not found or db error
+		 */
+		function deleteBiller($user_id, $biller_id) {
+
+			$query = "DELETE FROM billers WHERE id = :id AND user_id = :user_id";
+			$stmt = $this->db->prepare($query);
+			$stmt->execute(array(':id' => $biller_id, ':user_id' => $user_id));
+			$count = $stmt->rowCount();
+					
+			if($count > 0) {
+				return true;
+			} else {
+				return false;	
+			}
+					
+		
 		}
 		
 		/**
@@ -370,52 +424,7 @@
 			}			
 			
 		}
-		
-		/**
-		 * Update biller for user
-		 *
-		 * @param integer $user_id 
-		 * @param string $biller_id
-		 * @param interger $category_id 
-		 * @param string $biller_name
-		 *
-		 * @return boolean true if updated | boolean false if db error
-		 */
-		function updateBiller($user_id, $biller_id, $category_id, $biller_name) { 
-			
-			$query = "SELECT * FROM billers WHERE id = :biller_id AND user_id = :user_id LIMIT 1";
-			
-			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(":biller_id", $biller_id);
-			$stmt->bindParam(":user_id", $user_id);
-			$stmt->execute();
-			
-			$biller = $stmt->fetch(1);
-			
-			if(!$biller) {		
-				return false;
-			} else {
 
-				$query = "UPDATE billers 
-				SET name = :name, category_id = :category_id
-				WHERE id = :biller_id AND user_id = :user_id";
-					
-				$stmt = $this->db->prepare($query);
-				$stmt->bindParam(":name", $biller_name);
-				$stmt->bindParam(":category_id", $category_id);
-				$stmt->bindParam(":biller_id", $biller_id);
-				$stmt->bindParam(":user_id", $user_id);
-
-				if($stmt->execute()) {		
-					return true;
-				} else {
-					return false;
-				}
-				
-			}			
-			
-		}
-		
 		/**
 		 * Delete category for user
 		 *
@@ -425,71 +434,16 @@
 		 * @return true if deleted | boolean false if not found or db error
 		 */
 		function deleteCategory($user_id, $category_id) {
-			
-			$query = "SELECT * FROM categories WHERE id = :id AND user_id = :user_id LIMIT 1";
-			
+
+			$query = "DELETE FROM categories WHERE id = :id AND user_id = :user_id";
 			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(":id", $category_id);
-			$stmt->bindParam(":user_id", $user_id);
-			$stmt->execute();
-			
-			$category = $stmt->fetch(1);
-			
-			if(!$category) {		
-			
-				return false;
-			
-			} else {
-
-				$query = "DELETE FROM categories WHERE id = :id AND user_id = :user_id";
-				$stmt = $this->db->prepare($query);
-					
-				if($stmt->execute(array(':id' => $category_id, ':user_id' => $user_id))) {
-					return true;
-				} else {
-					return false;	
-				}
-					
+			$stmt->execute(array(':id' => $category_id, ':user_id' => $user_id));
+			$count = $stmt->rowCount();
 				
-			}
-		
-		}
-		
-		/**
-		 * Delete category for user
-		 *
-		 * @param integer $id user id
-		 * @param integer $biller_id biller id
-		 *
-		 * @return true if deleted | boolean false if not found or db error
-		 */
-		function deleteBiller($user_id, $biller_id) {
-
-			$query = "SELECT * FROM billers WHERE id = :id AND user_id = :user_id LIMIT 1";
-			
-			$stmt = $this->db->prepare($query);
-			$stmt->bindParam(":id", $biller_id);
-			$stmt->bindParam(":user_id", $user_id);
-			$stmt->execute();
-			
-			$category = $stmt->fetch(1);
-			
-			if(!$category) {		
-			
-				return false;
-			
+			if($count > 0) {
+				return true;
 			} else {
-
-				$query = "DELETE FROM billers WHERE id = :id AND user_id = :user_id";
-				$stmt = $this->db->prepare($query);
-					
-				if($stmt->execute(array(':id' => $biller_id, ':user_id' => $user_id))) {
-					return true;
-				} else {
-					return false;	
-				}
-					
-				
+				return false;	
 			}
 		
 		}
@@ -590,7 +544,7 @@
 				
 				if($user['email'] == password_verify($password, $user['password'])) {
 				
-					$date = new DateTime();
+					$date = new \DateTime();
 					$iat = date_timestamp_get($date);
 					$token = new Token($user['id'], $secret, $iat);
 					echo json_encode(['code' => 200, 'message' => 'Logged in', 'token' => $token->getTokenString()]); // everything good
@@ -602,6 +556,128 @@
 				}
 			}			
 			
+		}
+		
+		
+		
+		/**
+		 * Get payments for bill
+		 *
+		 * @param integer $bill_id 
+		 *
+		 * @return Payment[] | boolean false if db error
+		 */
+		public function getPayments($user_id, $bill_id) {
+		
+			$query = "
+			SELECT * FROM payments WHERE bill_id = :bill_id AND user_id = :user_id";
+			$stmt = $this->db->prepare($query);
+			if(!$stmt) { print_r($this->db->errorInfo()); }
+			$stmt->bindParam(':bill_id', $bill_id);
+			$stmt->bindParam(':user_id', $user_id);
+			
+			if($stmt->execute()) {
+				$bills = $stmt->fetchAll();
+				return $bills;
+			} else {
+				return null;
+			}			
+		
+		}
+		
+		/**
+		 * Create payment for user
+		 *
+		 * @param integer $user_id 
+		 * @param integer $payment_id
+		 * @param integer $bill_id
+		 * @param integer $amount
+		 * @param integer $date
+		 *
+		 * @return boolean true if updated | boolean false if db error
+		 */
+		function createPayment($user_id, $bill_id, $amount, $date) {
+
+			$query = "INSERT INTO payments (user_id, bill_id, amount, date) VALUES (:user_id, :bill_id, :amount, :date)";
+			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(':bill_id', $bill_id);
+			$stmt->bindParam(':user_id', $user_id);
+			$stmt->bindParam(':amount', $amount);
+			$stmt->bindParam(':date', $date);
+
+			if($stmt->execute()) {		
+			
+				return true;
+
+			} else {
+			
+				return false;
+			
+			}
+		
+		}
+		
+		/**
+		 * Update payment for user
+		 *
+		 * @param integer $user_id 
+		 * @param integer $payment_id
+		 * @param integer $bill_id
+		 * @param integer $amount
+		 * @param intger $date
+		 *
+		 * @return boolean true if updated | boolean false if db error
+		 */
+		function updatePayment($user_id, $payment_id, $bill_id, $amount, $date) {
+			
+			$query = "UPDATE payments 
+			SET bill_id = :bill_id, amount = :amount, date = :date
+			WHERE id = :payment_id AND user_id = :user_id";
+					
+			$stmt = $this->db->prepare($query);
+			$stmt->bindParam(':payment_id', $payment_id);
+			$stmt->bindParam(':bill_id', $bill_id);
+			$stmt->bindParam(':user_id', $user_id);
+			$stmt->bindParam(':amount', $amount);
+			$stmt->bindParam(':date', $date);
+
+			if($stmt->execute()) {		
+			
+				return true;
+			
+			} else {
+			
+				return false;
+			
+			}
+		
+		}
+		
+		/**
+		 * Delete payment for user
+		 *
+		 * @param integer $user_id 
+		 * @param integer $payment_id
+		 *
+		 * @return true if updated | boolean false if db error
+		 */
+		function deletePayment($user_id, $payment_id) {
+		
+			$query = "DELETE FROM payments WHERE id = :payment_id AND user_id = :user_id";
+			$stmt = $this->db->prepare($query);
+			$stmt->execute(array(':payment_id' => $payment_id, ':user_id' =>  $user_id));
+			$count = $stmt->rowCount();
+						
+			if($count > 0) {
+			
+				return true;
+			
+			} else {
+
+				return false;	
+
+			}		
+		
 		}
 		
 	}

@@ -1,8 +1,10 @@
 <?php
 
-	/**
-	 * Class that handles category actions
-	 */
+	namespace Bills;
+	
+	use Bills\models\User;
+	use Bills\models\Token;
+	
 	class CategoryController {
 		
 		private $secret;

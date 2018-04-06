@@ -1,8 +1,9 @@
 <?php
 
-	/**
-	 * Class that helps to verify tokens
-	 */
+	namespace Bills;
+	
+	use Bills\models\Token;
+	
 	class TokenHelper {
 		
 		/**
@@ -40,7 +41,7 @@
 			$issued = json_decode($payload)->{'iat'};
 				
 			// Get current timestamp
-			$date = new DateTime();
+			$date = new \DateTime();
 			$now = date_timestamp_get($date);
 				
 			// Check that token hasn't expired yet

@@ -1,8 +1,7 @@
 <?php
 
-	/**
-	 * Class that represents Token 
-	 */
+	namespace Bills\models;
+	
 	class Token {
 		
 		/**
@@ -42,7 +41,7 @@
 		private function createToken($id, $secret, $iat) {
 			
 			$header = '{"alg" : "HS256", "typ" : "JWT"}';
-			$date = new DateTime();
+			$date = new \DateTime();
 			$now = date_timestamp_get($date);
 			if($iat == null) { $iat = $now; }
 			$payload = '{"user_id" : ' . $id . ', "iat" : ' . $iat . '}';

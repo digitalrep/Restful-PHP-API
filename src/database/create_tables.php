@@ -73,9 +73,11 @@
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS payments (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
+				user_id INT(5) NOT NULL,
 				bill_id INT(5) NOT NULL,
 				amount INT(8) NOT NULL,
 				date INT(10) NOT NULL,
+				FOREIGN KEY(user_id) REFERENCES users(id),
 				FOREIGN KEY(bill_id) REFERENCES bills(id)
 			)";
 			$db->exec($sql);

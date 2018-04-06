@@ -1,8 +1,9 @@
 <?php
 
-	/**
-	 * Class that represents User 
-	 */
+	namespace Bills\models;
+
+	use Bills\DBManager;
+	
 	class User {
 	
 		/**
@@ -88,6 +89,19 @@
 		}
 		
 		/**
+		 * Creates a category
+		 *
+		 * @param string $name
+		 *
+		 * @return boolean
+		 */	
+		public function addCategory($name) {
+
+			return $this->dbmanager->createCategory($this->id, $name);
+		
+		}
+		
+		/**
 		 * Updates biller
 		 *
 		 * @param integer $biller_id
@@ -103,20 +117,7 @@
 		}
 		
 		/**
-		 * Creates a category
-		 *
-		 * @param string $name
-		 *
-		 * @return boolean
-		 */	
-		public function addCategory($name) {
-
-			return $this->dbmanager->createCategory($this->id, $name);
-		
-		}
-		
-		/**
-		 * Updates biller
+		 * Updates bill
 		 *
 		 * @param integer $bill_id
 		 * @param integer $biller_id
@@ -195,6 +196,63 @@
 		public function deleteCategory($category_id) {
 		
 			return $this->dbmanager->deleteCategory($this->id, $category_id);					
+		
+		}
+		
+		// Payments 
+		
+		/**
+		 * Gets all payments for bill
+		 *
+		 * @return Payment[] 
+		 */	
+		public function getPayments($bill_id) {
+		
+			return $this->dbmanager->getPayments($this->id, $bill_id);
+		
+		}
+		
+		/**
+		 * Creates a payment 
+		 *
+		 * @param integer $bill_id
+		 * @param integer $amount
+		 * @param integer $date (timestamp)
+		 *
+		 * @return boolean
+		 */	
+		public function addPayment($bill_id, $amount, $date) {
+
+			return $this->dbmanager->createPayment($this->id, $bill_id, $amount, $date);
+		
+		}
+		
+		/**
+		 * Updates payment
+		 *
+		 * @param integer $payment_id
+		 * @param integer $bill_id
+		 * @param integer $amount
+		 * @param string $date
+		 *
+		 * @return boolean
+		 */	
+		public function updatePayment($payment_id, $bill_id, $amount, $date) {
+		
+			return $this->dbmanager->updatePayment($this->id, $payment_id, $bill_id, $amount, $date);					
+		
+		}
+		
+		/**
+		 * Deletes payment
+		 *
+		 * @param integer $payment_id
+		 *
+		 * @return boolean
+		 */	
+		public function deletePayment($payment_id) {
+		
+			return $this->dbmanager->deletePayment($this->id, $payment_id);					
 		
 		}
 	

@@ -1,13 +1,14 @@
 <?php
 
 	use PHPUnit\Framework\TestCase;
+	use Bills\models\Token;
 	
 	class TokenTest extends TestCase {
 		
 		private $secret = "rvMuQ1MJ002IeWcl09TT4grwUxz41sSR";
 		private $token;
 		
-		public function testToken() {
+		public function testTokenProperlyCreated() {
 
 			$id = 1;
 			$iat = 1522392567;

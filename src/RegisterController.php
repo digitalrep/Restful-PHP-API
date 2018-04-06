@@ -1,8 +1,7 @@
 <?php
 	
-	/**
-	 * Class that handles registering new users
-	 */
+	namespace Bills;
+	
 	class RegisterController {
 		
 		/**

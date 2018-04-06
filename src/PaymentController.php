@@ -5,7 +5,7 @@
 	use Bills\models\User;
 	use Bills\models\Token;
 	
-	class BillerController {
+	class PaymentController {
 		
 		private $secret;
 		private $id;
@@ -20,8 +20,8 @@
 		 * @param string $secret
 		 */
 		public function __construct($secret) {
-		
-			// Make sure token is valid
+			
+			// Make sure jwt token is valid and retrieve user based on id
 			$this->secret = $secret;
 			$tokenHelper = new TokenHelper($this->secret);
 			$this->id = $tokenHelper->getUserId();	
@@ -32,48 +32,52 @@
 				echo json_encode(["code" => 401, "message" => "Unauthorized"]);
 				
 			} else {
-			
-				$method = $_SERVER['REQUEST_METHOD'];
 				
+				$method = $_SERVER['REQUEST_METHOD'];
+			
 				switch($method) {
 					case 'GET':
-						$this->getBiller();
+						$this->getPayment();
 						break;
 					case 'POST':
-						$this->postBiller();
+						$this->postPayment();
 						break;
 					case 'PUT':
-						$this->updateBiller();
+						$this->putPayment();
 						break;
 					case 'PATCH':
-						echo json_encode(["code" => 405, "message" => "Method not allowed"]);						
+						echo json_encode(["code" => 405, "message" => "Method not allowed"]);								
 						break;
 					case 'DELETE':
-						$this->deleteBiller();					
+						$this->deletePayment();
 						break;
 				}
 				
 			}
 			
 		}
-		
+	
 		/**
-		 * Gets all billers created by User
+		 * Gets all payments for particular bill
 		 *
-		 * @return Biller[] 
-		 */	
-		private function getBiller() {
+		 * @return Payment[] 
+		 */		
+		private function getPayment() {
+	
+			$refreshed_token = new Token($this->id, $this->secret, null);
 			
-			$refreshed_token = new Token($this->id, $this->secret, null);	
+			// Get bill id from URI
+			$sections = explode("/", $_SERVER['REQUEST_URI']);
+			$bill_id = $sections[1];			
+				
+			$payments = $this->user->getPayments($bill_id);
 			
-			$billers = $this->user->getBillers();
-			
-			if($billers) {
+			if($payments) {
 				
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
-					'billers' => $billers,
+					'payments' => $payments,
 					'token' => $refreshed_token->getTokenString()
 				]);
 					
@@ -82,103 +86,108 @@
 				echo json_encode([
 					'code' => 404, 
 					'message' => 'Not found',
-					'billers' => '',
+					'payments' => '',
 					'token' => $refreshed_token->getTokenString()
 				]);	
 				
 			}
-
-		} 
 		
+		}
+			
 		/**
-		 * Creates a biller
+		 * Creates a payment 
 		 *
-		 * @param integer $_REQUEST['category_id']
-		 * @param integer $_REQUEST['name']
+		 * @param integer $_REQUEST['bill_id']
+		 * @param integer $_REQUEST['amount']
+		 * @param integer $_REQUEST['date'] (timestamp)
 		 *
 		 * @return boolean
 		 */	
-		private function postBiller() {
-			
+		private function postPayment() {
+					
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
 			// Retrieve POST variables
-			$category_id = $_REQUEST['category_id'];
-			$name = $_REQUEST['name'];
-			
-			if($this->user->addBiller($category_id, $name)) {
+			$bill_id = $_REQUEST['bill_id'];
+			$amount = str_replace(".", "", $_REQUEST['amount']); // Convert to integer **Require two spots after decimal on front end
+			$date = $_REQUEST['date']; // Has to be unix timestamp format
+						
+			if($this->user->addPayment($bill_id, $amount, $date)) {
 				echo json_encode([
 					'code' => 201, 
-					'message' => 'Biller created',
+					'message' => 'Payment created',
 					'token' => $refreshed_token->getTokenString()
 				]);
 			} else {
 				echo json_encode([
 					'code' => 424, 
-					'message' => 'Biller not created',
+					'message' => 'Payment not created',
 					'token' => $refreshed_token->getTokenString()
 				]);
-			}		
-
+			}				
+			
 		} 
-		
+			
 		/**
-		 * Updates a biller
+		 * Updates a payment 
 		 *
-		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
-		 * @param integer $_PUT['name']
-		 * @param string $_PUT['category_id'] 
+		 * @param $_SERVER['REQUEST_URI'] (payment id)
+		 * @param integer $_PUT['bill_id']
+		 * @param integer $_PUT['amount']
+		 * @param integer $_PUT['date'] (timestamp)
 		 *
 		 * @return boolean
-		 */
-		private function updateBiller() {
-			
+		 */	
+		private function putPayment() {
+				
 			$refreshed_token = new Token($this->id, $this->secret, null);
 			
-			// Get biller id from URI
+			// Get bill id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$biller_id = $sections[2];
+			$payment_id = $sections[2];
 				
 			parse_str(file_get_contents("php://input"), $_PUT);
 				
 			// Retrieve PUT variables
 			// All must be set as this is a PUT request
-			$name = $_PUT['name'];
-			$category_id = $_PUT['category_id'];
-					
-			if($this->user->updateBiller($biller_id, $category_id, $name)) {		
+			$bill_id = $_PUT['bill_id'];
+			$amount = str_replace(".", "", $_PUT['amount']);
+			$date = $_PUT['date'];
+				
+			if($this->user->updatePayment($payment_id, $bill_id, $amount, $date)) {
 				echo json_encode([
 					'code' => 200, 
 					'message' => 'OK',
 					'token' => $refreshed_token->getTokenString()
 				]);
-				
 			} else {
 				echo json_encode([
 					'code' => 404, 
-					'message' => 'Not found',
+					'message' => 'Not found PUT',
 					'token' => $refreshed_token->getTokenString()
 				]);
-			}						
-				
+			}				
+			
 		}
-		
+					
 		/**
-		 * Delete biller
+		 * Delete payment
 		 *
-		 * @param integer $_SERVER['REQUEST_URI'] (biller id)
+		 * @param integer $_SERVER['REQUEST_URI'] (payment id)
 		 *
 		 * @return boolean
 		 */	
-		private function deleteBiller() {
+		private function deletePayment() {
 		
 			$refreshed_token = new Token($this->id, $this->secret, null);
-			
-			// Get category id from URI
+
+			// Get payment id from URI
 			$sections = explode("/", $_SERVER['REQUEST_URI']);
-			$biller_id = $sections[2];
+			$payment_id = $sections[2];
+			
+			echo $payment_id;
 				
-			if($this->user->deleteBiller($biller_id)) {
+			if($this->user->deletePayment($payment_id)) {
 				
 				echo json_encode([
 					'code' => 200, 
@@ -195,9 +204,9 @@
 				]);	
 				
 			}
-		
-		}
-		
+			
+		}	
+
 	}
 
 ?>

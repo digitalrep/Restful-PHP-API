@@ -21,7 +21,7 @@
 
 		}
 		
-		public function testUsers() {
+		public function testUsersInserted() {
 		
 			$expected = $this->createXMLDataSet(__DIR__ . DIRECTORY_SEPARATOR . 'database.xml')->getTable('users');
 			$queryTable = $this->getConnection()->createQueryTable("users", "SELECT * FROM users");
@@ -29,9 +29,27 @@
 		
 		}
 		
-		public function testBillers() {
+		public function testBillersInserted() {
 		
-			$this->assertEquals(3, $this->getConnection()->getRowCount('billers'), "Billers does not contain 3 Billers");
+			$this->assertEquals(8, $this->getConnection()->getRowCount('billers'), "Billers does not contain 8 rows");
+		
+		}
+		
+		public function testPaymentsInserted() {
+		
+			$this->assertEquals(3, $this->getConnection()->getRowCount('payments'), "Payments does not contain 3 rows");
+		
+		}
+		
+		public function testCategoriesInserted() {
+		
+			$this->assertEquals(4, $this->getConnection()->getRowCount('categories'), "Categories does not contain 4 rows");
+		
+		}
+		
+		public function testBillsInserted() {
+		
+			$this->assertEquals(3, $this->getConnection()->getRowCount('bills'), "Bills does not contain 3 rows");
 		
 		}
 		

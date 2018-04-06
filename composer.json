@@ -1,9 +1,8 @@
 {
     "autoload": {
-        "classmap": [
-            "src/",
-			"src/models"
-        ]
+        "psr-4": {
+            "Bills\\" : "src/"
+        }
     },
     "require-dev": {
         "phpunit/phpunit": "^6",
