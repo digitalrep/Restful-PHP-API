@@ -1,10 +1,10 @@
 <?php
 
-		$db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');	
+		$db = new PDO('mysql:host=localhost;dbname=bills', 'bills_admin', '5y9_uio345');
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		
+
 		// Users
-		
+
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS users (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -17,48 +17,46 @@
 		} catch(Exception $e) {
 			echo $e->getMessage();
 		}
-		
+
 		// Categories
-		
+
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS categories (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
 				user_id INT(5) NOT NULL,
 				category_name VARCHAR(250) NOT NULL,
-				UNIQUE(category_name),
 				FOREIGN KEY(user_id) REFERENCES users(id)
 			)";
 			$db->exec($sql);
 		} catch(Exception $e) {
 			echo $e->getMessage();
-		}		
-		
+		}
+
 		// Billers
-		
+
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS billers (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
 				user_id INT(5) NOT NULL,
 				category_id INT(5) NOT NULL,
 				name VARCHAR(250) NOT NULL,
-				UNIQUE(name),
 				FOREIGN KEY(user_id) REFERENCES users(id),
 				FOREIGN KEY(category_id) REFERENCES categories(id)
 			)";
 			$db->exec($sql);
 		} catch(Exception $e) {
 			echo $e->getMessage();
-		}	
-		
+		}
+
 		// Bills
-		
+
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS bills (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
 				user_id INT(5) NOT NULL,
 				biller_id INT(5) NOT NULL,
 				amount INT(8) NOT NULL,
-				due INT(10) NOT NULL,
+				due VARCHAR(10) NOT NULL,
 				status INT(1) NOT NULL,
 				FOREIGN KEY(user_id) REFERENCES users(id),
 				FOREIGN KEY(biller_id) REFERENCES billers(id)
@@ -69,29 +67,38 @@
 		}
 
 		// Payments
-		
+
 		try {
 			$sql = 	"CREATE TABLE IF NOT EXISTS payments (
 				id INT(5) AUTO_INCREMENT PRIMARY KEY NOT NULL,
 				user_id INT(5) NOT NULL,
-				bill_id INT(5) NOT NULL,
+				biller_id INT(5) NOT NULL,
 				amount INT(8) NOT NULL,
-				date INT(10) NOT NULL,
+				date VARCHAR(10) NOT NULL,
 				FOREIGN KEY(user_id) REFERENCES users(id),
-				FOREIGN KEY(bill_id) REFERENCES bills(id)
+				FOREIGN KEY(biller_id) REFERENCES billers(id)
 			)";
 			$db->exec($sql);
 		} catch(Exception $e) {
 			echo $e->getMessage();
-		}		
-		
-	/* sqlite 
-		
+		}
+
+		// Pre-payments
+
+		try {
+			$sql = 	"drop table if exists prepayments";
+			$db->exec($sql);
+		} catch(Exception $e) {
+			echo $e->getMessage();
+		}
+
+	/* sqlite
+
 		$db = new PDO("sqlite:../src/database/database.sqlite");
 		$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		
+
 	// Users
-		
+
 	$createTablesSql =
 <<<EOF
 	CREATE TABLE IF NOT EXISTS users (
@@ -109,7 +116,7 @@ EOF;
 	}
 
 	// Categories
-	
+
 	$createTablesSql =
 <<<EOF
 	CREATE TABLE IF NOT EXISTS categories (
@@ -127,7 +134,7 @@ EOF;
 	}
 
 	// Billers
-	
+
 	$createTablesSql =
 <<<EOF
 	CREATE TABLE IF NOT EXISTS billers (
@@ -147,7 +154,7 @@ EOF;
 	}
 
 	// Bills
-	
+
 	$createTablesSql =
 <<<EOF
 	CREATE TABLE IF NOT EXISTS bills(
@@ -166,12 +173,12 @@ EOF;
 		$db->exec($createTablesSql);
 	} catch(Exception $e) {
 		echo $e->getMessage();
-	}		
-		
+	}
+
 	*/
 
 
-	
+
 
 
 ?>
